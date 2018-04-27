@@ -25,8 +25,8 @@ class GeneSampleList(list):
     def __init__(self, file_name: str, parsing_type: ParsingType):
         super().__init__()
         file_text = GeneSampleList.load_file(file_name)
-        for element in GeneSampleList.parse_file_text(file_text, parsing_type): 
-            # Элементы добавляются в лист помтрочно из файла.
+        for element in GeneSampleList.parse_file_text(file_text, parsing_type):
+            # Элементы добавляются в лист построчно из файла.
             self.append(element)
 
     @staticmethod
@@ -36,10 +36,12 @@ class GeneSampleList(list):
         if parsing_type == ParsingType.sample_average:
             for line in file_text[1:]:
                 parts = str.split(line)
+                parts[0] = tk.re.sub('\D', '', parts[0])
                 yield Sample(parts[0], parts[3] if parts[3] != '' else '0', '', '')
         elif parsing_type == ParsingType.group_name:
             for line in file_text[1:]:
                 parts = str.split(line, ';')
+                # parts[0] = tk.re.sub('\D', '', parts[0])
                 try:
                     yield Sample(parts[0], '', parts[1], parts[2])
                 except IndexError:
@@ -58,18 +60,12 @@ class ComparativeSampleList(GeneSampleList):
     # Лист для проб референсного гена.
     def __init__(self, file_name: str, parsing_type):
         super().__init__(file_name, parsing_type)
-        file_text = ComparativeSampleList.load_file(file_name)
-        for element in ComparativeSampleList.parse_file_text(file_text, parsing_type):
-            self.append(element)
 
 
 class GroupNameList(GeneSampleList): 
     # Лист для названий групп для каждой пробы.
     def __init__(self, file_name: str, parsing_type):
         super().__init__(file_name, parsing_type)
-        file_text = GeneSampleList.load_file(file_name)
-        for element in GeneSampleList.parse_file_text(file_text, parsing_type):
-            self.append(element)
 
 
 class SampleReadyForProcessing: 
@@ -89,13 +85,19 @@ class ListSampleForProcessing(list):
     # Класс-список с объектами-пробами.
     def __init__(self, gene_list: GeneSampleList, comparative_list: ComparativeSampleList, group_list: GroupNameList):
         super().__init__()
+        # Comparing gene item, comparative item and group item by fist field in class - number of item.
         for i in range(0, len(gene_list)):
-            comparison = 0.0
-            if comparative_list[i] != 0:
-                comparison = round(((float(gene_list[i].conc)/float(comparative_list[i].conc))*100), 3) 
-                # Сравнение целевого гена с референсным в ста копиях.
-            self.append(SampleReadyForProcessing(gene_list[i].number, comparison, group_list[i].control,
-                                                 group_list[i].line))
+            number_of_item = gene_list[i].number
+            for comparative_item in comparative_list:
+                if comparative_item.number == number_of_item:
+                    comparison = 0.0
+                    if comparative_item != 0:
+                        comparison = round(((float(gene_list[i].conc)/float(comparative_item.conc))*100), 3)
+                        # Сравнение целевого гена с референсным в ста копиях.
+                    for group_item in comparative_list:
+                        if group_item.number == number_of_item:
+                            self.append(SampleReadyForProcessing(gene_list[i].number, comparison, group_item.control,
+                                                         group_item.line))
 
 class LogicLayer: 
     # Логическая составляющая интерфейса.
@@ -220,15 +222,15 @@ class Interfacing:
 
     def resume_processing(self): 
         # Продолжает работу, заполняя текстовое поле результатом обработки значений проб.
-        try:
+        # try:
             text = self.logic.resume_processing()
             self.list_of_sam_in_ob_box.delete(1.0, tk.END)
             self.list_of_sam_in_ob_box.insert(1.0, text)
             self.list_of_sam_in_ob_box.config(state=tk.DISABLED)
             self.header_text['text'] = 'number      mean         line'
-        except Exception:
-            error_text = 'Wrong file(s)'
-            self.open_error_window(error_text)
+        # except Exception:
+        #     error_text = 'Wrong file(s)'
+        #     self.open_error_window(error_text)
 
     def open_error_window(self, error_text):
         error = tk.Tk()
