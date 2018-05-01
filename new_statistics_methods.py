@@ -51,7 +51,7 @@ class SampleListWithoutBads(list):
     # Лист объектов-проб, из которого исключены плохие пробы при помощи чек-боксов в интерфейсе.
     def __init__(self, source_samples: list):
         super().__init__()
-        processed_list = [element for element in source_samples if element.is_checked == 1]
+        processed_list = [element for element in source_samples if element.is_checked == True]
         for element in processed_list:
             self.append(element)
 
@@ -281,7 +281,8 @@ class LogicLayer:
         else:
             tempsamples = GroupStatistics(samples, GroupType.Control)
 
-        df_result = 'degree of freedom = ' + str(tempsamples.find_degree_of_freedom())
+        degree_of_freedom = tempsamples.find_degree_of_freedom()
+        df_result = 'degree of freedom = ' + str(degree_of_freedom)
         # Возвращает степень свободы.
         results.append(df_result)
         results.append('')
@@ -291,15 +292,16 @@ class LogicLayer:
         if samples[1].line != 0:
             cont_f, cont_p, cont_df, line_f, line_p, line_df, cxl_f, cxl_p, cxl_df = tempsamples.find_line_interaction_two_way \
                 (GroupStatistics(samples, GroupType.Control), GroupStatistics(samples, GroupType.Line))
-            results.append('control: F(' + str(cont_df) + ', ' + str(tempsamples.find_degree_of_freedom()) + ')=' + str(round(cont_f, 2)) +
-                           ' p=' + str(round(cont_p, 3)) + '\n' + 'line: F(' + str(line_df) + ', ' +
-                           str(tempsamples.find_degree_of_freedom()) + ')=' + str(round(line_f, 2)) + ' p=' +
+            results.append('control: F(' + str(cont_df) + ', ' + str(degree_of_freedom) + ')=' +
+                           str(round(cont_f, 2)) + ' p=' + str(round(cont_p, 3)) + '\n' + 'line: F(' + str(line_df) +
+                           ', ' + str(degree_of_freedom) + ')=' + str(round(line_f, 2)) + ' p=' +
                            str(round(line_p, 3)) + '\n' + 'cont x line: F(' + str(cxl_df) + ', ' +
-                           str(tempsamples.find_degree_of_freedom()) + ')=' + str(round(cxl_f, 2)) + ' p=' +
+                           str(degree_of_freedom) + ')=' + str(round(cxl_f, 2)) + ' p=' +
                            str(round(cxl_p, 3)))
         else:
-            cont_f, cont_p, cont_df  = tempsamples.find_line_interaction_one_way(GroupStatistics(samples, GroupType.Control))
-            results.append('control: F(' + ', ' + str(cont_df) + str(tempsamples.find_degree_of_freedom()) + ')=' + str(round(cont_f, 2)) +
+            cont_f, cont_p, cont_df = tempsamples.find_line_interaction_one_way(GroupStatistics(samples, GroupType.Control))
+            results.append('control: F(' + str(cont_df) + ', ' + str(degree_of_freedom)
+                           + ')=' + str(round(cont_f, 2)) +
                            ' p=' + str(round(cont_p, 3)))
 
         results.append('')
@@ -446,11 +448,12 @@ class Interfacing:
                 current_control_and_line = result[0].control
 
             current_color = 'white'
-            differrent_color = 'grey90'
+            different_color = 'grey90'
             for element in result:
-                var = tk.IntVar(value=1)
+                var = tk.BooleanVar(value=True)
                 f = functools.partial(self.check_sample, element=element, checked=var)
-                check = tk.Checkbutton(samples_frame, text='', variable=var, onvalue=1, offvalue=0, command=f)
+                check = tk.Checkbutton(samples_frame, text='', variable=var, onvalue=True, offvalue=False, command=f)
+                check.select()  # Setting this settings of checkbox by default.
                 check.grid(column=0, row=number_of_row)
 
                 # Окрашивание строк таблицы
@@ -461,8 +464,8 @@ class Interfacing:
                 if new_control_and_line == current_control_and_line:
                     color = current_color
                 else:
-                    color = differrent_color
-                    current_color, differrent_color = differrent_color, current_color
+                    color = different_color
+                    current_color, different_color = different_color, current_color
                     current_control_and_line = new_control_and_line
 
                 # Создание чек-боксов.
@@ -505,8 +508,8 @@ class Interfacing:
 
     @staticmethod
     def check_sample(element, checked):
-        is_checked = checked.get()
-        element.is_checked = is_checked
+        checked_value = checked.get()
+        element.is_checked = checked_value
         # Наполнение списка из отмеченных чекбоксов.
 
     def create_page_buttons_frame(self):
