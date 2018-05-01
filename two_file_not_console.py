@@ -94,7 +94,7 @@ class ListSampleForProcessing(list):
                     if comparative_item != 0:
                         comparison = round(((float(gene_list[i].conc)/float(comparative_item.conc))*100), 3)
                         # Сравнение целевого гена с референсным в ста копиях.
-                    for group_item in comparative_list:
+                    for group_item in group_list:
                         if group_item.number == number_of_item:
                             self.append(SampleReadyForProcessing(gene_list[i].number, comparison, group_item.control,
                                                          group_item.line))
