@@ -42,7 +42,7 @@ class Interfacing:
         whats_new.title("What's new")
         whats_new.minsize(300, 150)
 
-        self.whats_new = tk.Label(whats_new, text='What is new in v0.3\n\n'
+        self.whats_new = tk.Label(whats_new, text='What is new in v0.4\n\n'
                                                   '> Fixed bug with one-way ANOVA, when degree of freedom was not '
                                                   'clear\n'
                                                   '> Fixed comparing lists by name of items, not by thier position in '
@@ -59,7 +59,7 @@ class Interfacing:
 
         self.about = tk.Label(about, text='PCR processing\nProgram for processing PCR RT data from\nRoche LightCycler® '
                                           '480 System\n\n\n'
-                                          'Version: May, 2018, 0.3\n\n\nAuthors: Arina Pershina, Michael Timoshin\n'
+                                          'Version: Jul, 2018, 0.4\n\n\nAuthors: Arina Pershina, Michael Timoshin\n'
                                           'june38@yandex.ru')
         self.about.pack(fill='x')
 
