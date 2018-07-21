@@ -254,11 +254,11 @@ class Interfacing:
         # Результат работы кнопки "Resume".
         # В текстовом поле выводится результат обработки проб.
         if self.first_raw_tb.get() != '' and self.last_raw_tb.get() != '' and self.quantity_tb.get() != '' and \
-                        int(self.quantity_tb.get()) > 0 and int(self.first_raw_tb.get())>= 0 and \
+                        float(self.quantity_tb.get()) > 0 and int(self.first_raw_tb.get())>= 0 and \
                         int(self.first_raw_tb.get()) < 97 and int(self.last_raw_tb.get()) < 97 and \
                         int(self.last_raw_tb.get()) > int(self.first_raw_tb.get()):
             text = self.logic.resume_processing(int(self.first_raw_tb.get()), int(self.last_raw_tb.get()),
-                                                int(self.quantity_tb.get()))
+                                                float(self.quantity_tb.get()))
             self.list_of_sam_in_ob_box.delete(1.0, tk.END)
             self.list_of_sam_in_ob_box.insert(tk.END, text)
             self.list_of_sam_in_ob_box.config(state=tk.DISABLED)
